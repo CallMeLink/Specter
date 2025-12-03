@@ -1,0 +1,28 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    gap: 1rem;
+    text-align: center;
+}
+
+.cs-input {
+    width: 250px;
+}
+
+.cs-text{
+    margin: 0;
+    font-family: ArialPixel, system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: 20;
+    line-height: 1.2;
+    color: var(--text);
+    display: block;
+}
+
+.cs-btn{
+    width: 75px;
+}
