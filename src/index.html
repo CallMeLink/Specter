@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ekmas/cs16.css@main/css/cs16.min.css">
+    <link rel="stylesheet" type="text/css" href="style.css">
+    <script defer src="main.js"></script>
+    <title>Stella simulator</title>
+</head>
+<body>
+    <h1>Stella Simulator</h1>
+    <div style="margin: 20px 0;">
+        <input class="cs-input" id="input" type="text" placeholder="who you want to stalk?" style="width: 250px;"/>
+        <button class="cs-btn" id="search-btn">Stalk</button>
+    </div>
+    
+    <p class="cs-text" id="searching-text" style="display: none;">searching</p>
+    
+    <fieldset id="results-container" style="width: 400px; height: 400px; overflow-y: auto; margin: 20px 0;">
+        <legend>Results</legend>
+    </fieldset>
+    
+    <p id="summary" class="cs-text" style="display: none; margin: 10px 0;"></p>
+    <button class="cs-btn" id="download-btn" style="display: none;">Download</button>
+</body>
+</html>

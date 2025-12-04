@@ -1,0 +1,53 @@
+body {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    margin: 0;
+    gap: 1rem;
+    text-align: center;
+}
+
+.cs-input {
+    width: 250px;
+}
+
+.cs-text {
+    margin: 0;
+    font-family: Arial, system-ui, sans-serif;
+    font-size: 16px;
+    font-weight: normal;
+    line-height: 1.2;
+    color: var(--text);
+    display: block;
+}
+
+.cs-btn {
+    width: auto;
+    min-width: 75px;
+}
+
+#results-container {
+
+    font-size: 16px;
+    text-align: left;
+    padding: 10px;
+    color: #fff;
+}
+
+#results-container > div {
+    margin: 2px 0;
+    word-wrap: break-word;
+    white-space: pre-wrap;
+    font-size: 11px;
+}
+
+.result-found {
+    color: lime;
+}
+
+.result-not-found {
+    color: #888;
+}
+
