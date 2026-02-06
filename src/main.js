@@ -1,20 +1,56 @@
 const input = document.getElementById('input');
 const searchButton = document.getElementById('search-btn');
+const cancelButton = document.getElementById('cancel-btn');
 const searchingText = document.getElementById('searching-text');
-const resultsContainer = document.getElementById('results-container');
+const progressText = document.getElementById('progress-text');
+const resultsContainer = document.getElementById('results-inner');
 const downloadButton = document.getElementById('download-btn');
 const summary = document.getElementById('summary');
 
-let eventSource;
-let searchingDots = 0;
-let searchingInterval;
+// Base URL: use current origin when served via FastAPI;
+// fall back to localhost:8000 when opening index.html as a file.
+// Change this when deploying.
+const API_BASE = (window.location.protocol === 'file:' || window.location.origin === 'null' || window.location.port === '5500')
+    ? 'http://127.0.0.1:8000'
+    : window.location.origin;
 
-// Função para animar o texto "searching"
+let eventSource = null;
+let currentSearchId = null;
+let searchingDots = 0;
+let searchingInterval = null;
+let searchCompleted = false;
+
 function animateSearching() {
     searchingDots = (searchingDots + 1) % 4;
-    const dots = '.'.repeat(searchingDots);
-    searchingText.textContent = `searching${dots}`;
+    searchingText.textContent = `scanning${'.'.repeat(searchingDots)}`;
 }
+
+function setSearchingUI(active) {
+    searchButton.disabled = active;
+    cancelButton.style.display = active ? 'inline-block' : 'none';
+    searchingText.style.display = active ? 'block' : 'none';
+    progressText.style.display = active ? 'block' : 'none';
+    if (active) {
+        searchingDots = 0;
+        searchingInterval = setInterval(animateSearching, 500);
+    } else {
+        clearInterval(searchingInterval);
+        searchingInterval = null;
+    }
+}
+
+function resetUI() {
+    resultsContainer.innerHTML = '';
+    summary.style.display = 'none';
+    downloadButton.disabled = true;
+    downloadButton.dataset.downloadUrl = '';
+    progressText.textContent = '';
+    searchCompleted = false;
+}
+
+input.addEventListener('keydown', (e) => {
+    if (e.key === 'Enter') searchButton.click();
+});
 
 searchButton.addEventListener('click', () => {
     const username = input.value.trim();
@@ -22,106 +58,129 @@ searchButton.addEventListener('click', () => {
         alert('Please enter a username.');
         return;
     }
-    
-    // Reset UI
-    resultsContainer.innerHTML = '<legend>Results</legend>';
-    resultsContainer.style.display = 'block';
-    searchingText.style.display = 'block';
-    downloadButton.style.display = 'none';
-    summary.style.display = 'none';
-    searchButton.disabled = true;
-    searchingDots = 0;
-    
-    // Iniciar animação
-    searchingInterval = setInterval(animateSearching, 500);
 
-    // URL encoding correto para o username
+    // Basic client-side validation
+    if (username.length > 64) {
+        alert('Username is too long (max 64 characters).');
+        return;
+    }
+    if (!/^[a-zA-Z0-9._-]+$/.test(username)) {
+        alert('Username contains invalid characters. Only letters, numbers, \'.\', \'_\' and \'-\' are allowed.');
+        return;
+    }
+
+    resetUI();
+    setSearchingUI(true);
+
     const encodedUsername = encodeURIComponent(username);
-    const url = `http://127.0.0.1:8000/search?username=${encodedUsername}`;
+    const url = `${API_BASE}/search?username=${encodedUsername}`;
     console.log('Connecting to:', url);
-    
+
     eventSource = new EventSource(url);
 
-    eventSource.onmessage = (event) => {
-        console.log('Message received:', event.data);
-        const data = JSON.parse(event.data);
-        console.log('Parsed data:', data);
+    // Try to capture the search_id from the response headers via a parallel fetch
+    // EventSource doesn't expose headers, so we extract search_id from the first progress event
+    // The backend also returns it in X-Search-Id header; we use a small fetch to grab it.
+    fetch(url, { method: 'HEAD' }).then(r => {
+        const sid = r.headers.get('X-Search-Id');
+        if (sid) currentSearchId = sid;
+    }).catch(() => {});
 
-        // Handle fatal errors from the backend
+    eventSource.onmessage = (event) => {
+        const data = JSON.parse(event.data);
+
         if (data.error) {
-            clearInterval(searchingInterval);
+            setSearchingUI(false);
             const errorDiv = document.createElement('div');
-            errorDiv.textContent = `Error: ${data.error}`;
+            errorDiv.textContent = `⚠ ${data.error}`;
+            errorDiv.className = 'result-error';
             resultsContainer.appendChild(errorDiv);
-            searchingText.style.display = 'none';
-            searchButton.disabled = false;
             eventSource.close();
+            eventSource = null;
             return;
         }
 
         if (data.result) {
-            console.log('Adding result:', data.result);
-            const resultElement = document.createElement('div');
-            const resultText = data.result;
-            resultElement.textContent = resultText;
+            const el = document.createElement('div');
+            el.textContent = data.result;
 
-            // Add styling based on Sherlock's output prefixes
-            if (resultText.startsWith('[+]')) {
-                resultElement.className = 'result-found';
-            } else if (resultText.startsWith('[-]') || resultText.startsWith('[!]')) {
-                resultElement.className = 'result-not-found';
+            if (data.result.startsWith('[+]')) {
+                el.className = 'result-found';
+            } else if (data.result.startsWith('[-]') || data.result.startsWith('[!]')) {
+                el.className = 'result-not-found';
             }
-            resultsContainer.appendChild(resultElement);
-            // Auto-scroll to the bottom
+            resultsContainer.appendChild(el);
             resultsContainer.scrollTop = resultsContainer.scrollHeight;
         }
 
         if (data.message === 'done') {
-            console.log('Search completed');
-            clearInterval(searchingInterval);
-            searchingText.style.display = 'none';
-            searchButton.disabled = false;
-            
-            // if backend provided a download URL, show download button
-            if (data.download) {
-                // full absolute URL for the download
-                const downloadUrl = `http://127.0.0.1:8000${data.download}`;
-                downloadButton.dataset.downloadUrl = downloadUrl;
-                downloadButton.style.display = 'block';
+            searchCompleted = true;
+            setSearchingUI(false);
+            progressText.style.display = 'none';
 
-                // show summary
-                const positiveCount = data.count || 0;
-                summary.textContent = `✓ Found ${positiveCount} positive result${positiveCount === 1 ? '' : 's'}`;
+            if (data.download) {
+                const downloadUrl = `${API_BASE}${data.download}`;
+                downloadButton.dataset.downloadUrl = downloadUrl;
+                downloadButton.disabled = false;
+
+                const count = data.count || 0;
+                summary.textContent = `✓ Found ${count} positive result${count === 1 ? '' : 's'}`;
                 summary.style.display = 'block';
             } else {
-                summary.textContent = '✓ Search completed - No results found';
+                summary.textContent = '✓ Search completed – No results found';
                 summary.style.display = 'block';
             }
             eventSource.close();
+            eventSource = null;
         }
     };
 
     eventSource.onerror = () => {
-        clearInterval(searchingInterval);
+        if (searchCompleted) return;
+
+        setSearchingUI(false);
         const errorDiv = document.createElement('div');
-        errorDiv.textContent = 'Error: Connection to the backend failed. Ensure the server is running on http://127.0.0.1:8000';
+        errorDiv.textContent = '⚠ Connection lost. Make sure the backend server is running.';
+        errorDiv.className = 'result-error';
         resultsContainer.appendChild(errorDiv);
-        searchingText.style.display = 'none';
-        searchButton.disabled = false;
-        eventSource.close();
+
+        if (eventSource) {
+            eventSource.close();
+            eventSource = null;
+        }
     };
 });
 
+cancelButton.addEventListener('click', () => {
+    if (eventSource) {
+        eventSource.close();
+        eventSource = null;
+    }
+
+    // Tell backend to kill the process
+    if (currentSearchId) {
+        fetch(`${API_BASE}/cancel/${currentSearchId}`, { method: 'POST' }).catch(() => {});
+        currentSearchId = null;
+    }
+
+    setSearchingUI(false);
+    progressText.style.display = 'none';
+
+    const infoDiv = document.createElement('div');
+    infoDiv.textContent = '— Search cancelled by user';
+    infoDiv.className = 'result-not-found';
+    resultsContainer.appendChild(infoDiv);
+});
+
+// Download results
 downloadButton.addEventListener('click', () => {
     const url = downloadButton.dataset.downloadUrl;
-    if (!url) return;
+    if (!url || downloadButton.disabled) return;
 
-    // trigger browser download from server
     const a = document.createElement('a');
     a.href = url;
     document.body.appendChild(a);
     a.click();
     document.body.removeChild(a);
-    // hide the button after starting download
-    downloadButton.style.display = 'none';
+    downloadButton.disabled = true;
 });
