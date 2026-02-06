@@ -63,8 +63,8 @@ sherlock --version
 Clone the repository:
 
 ```bash
-git clone https://github.com/YOUR-USERNAME/specter.git
-cd specter
+git clone https://github.com/CallMeLink/Specter.git
+cd Specter
 ```
 
 Install Python dependencies (FastAPI, Uvicorn, and slowapi):
