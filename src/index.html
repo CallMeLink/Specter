@@ -1,28 +1,72 @@
 <!DOCTYPE html>
-
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <link rel="stylesheet" type="text/css" href="https://cdn.jsdelivr.net/gh/ekmas/cs16.css@main/css/cs16.min.css">
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🕵️</text></svg>">
     <link rel="stylesheet" type="text/css" href="style.css">
     <script defer src="main.js"></script>
-    <title>Stella simulator</title>
+    <title>Specter</title>
 </head>
 <body>
-    <h1>Stella Simulator</h1>
-    <div style="margin: 20px 0;">
-        <input class="cs-input" id="input" type="text" placeholder="who you want to stalk?" style="width: 250px;"/>
-        <button class="cs-btn" id="search-btn">Stalk</button>
+    <div class="scanlines"></div>
+
+    <div class="container">
+        <pre class="ascii-header">                                                               
+ @@@@@@   @@@@@@@   @@@@@@@@   @@@@@@@  @@@@@@@  @@@@@@@@  @@@@@@@   
+@@@@@@@   @@@@@@@@  @@@@@@@@  @@@@@@@@  @@@@@@@  @@@@@@@@  @@@@@@@@  
+!@@       @@!  @@@  @@!       !@@         @@!    @@!       @@!  @@@  
+!@!       !@!  @!@  !@!       !@!         !@!    !@!       !@!  @!@  
+!!@@!!    @!@@!@!   @!!!:!    !@!         @!!    @!!!:!    @!@!!@!   
+ !!@!!!   !!@!!!    !!!!!:    !!!         !!!    !!!!!:    !!@!@!    
+     !:!  !!:       !!:       :!!         !!:    !!:       !!: :!!   
+    !:!   :!:       :!:       :!:         :!:    :!:       :!:  !:!  
+:::: ::    ::        :: ::::   ::: :::     ::     :: ::::  ::   :::  
+:: : :     :        : :: ::    :: :: :     :     : :: ::    :   : :  
+        </pre>
+        <p class="subtitle">[ OSINT Username Reconnaissance Tool ]</p>
+        <p class="version-text">powered by <a href="https://github.com/sherlock-project/sherlock" target="_blank" rel="noopener">sherlock-project</a></p>
+
+        <div class="separator">════════════════════════════════════════════</div>
+
+        <div class="search-bar">
+            <span class="prompt">&gt;</span>
+            <input id="input" type="text" placeholder="enter target username..." maxlength="64" spellcheck="false" autocomplete="off"/>
+            <button id="search-btn" type="button">[ SCAN ]</button>
+            <button id="cancel-btn" type="button" style="display: none;">[ ABORT ]</button>
+        </div>
+
+        <p id="searching-text" class="status-text" style="display: none;">scanning</p>
+        <p id="progress-text" class="status-text" style="display: none;"></p>
+
+        <div id="results-container">
+            <div class="results-header">
+                <span class="corner">┌</span>
+                <span class="line"></span>
+                <span class="title">RESULTS</span>
+                <span class="line"></span>
+                <span class="corner">┐</span>
+            </div>
+            <div id="results-inner"></div>
+            <div class="results-footer">
+                <span class="corner">└</span>
+                <span class="line"></span>
+                <span class="corner">┘</span>
+            </div>
+        </div>
+
+        <p id="summary" class="summary-text" style="display: none;"></p>
+        <div class="actions">
+            <button id="download-btn" disabled>[ DOWNLOAD .TXT ]</button>
+        </div>
+        <div class="footer">
+            <a class="repo-link" href="https://github.com/YOUR-USERNAME/YOUR-REPO" target="_blank" rel="noopener">[ GitHub Repository ]</a>
+            <pre class="ascii-footer">
+ ─────────────────────────────────────────
+  Use responsibly. For educational purposes only.
+ ─────────────────────────────────────────
+            </pre>
+        </div>
     </div>
-    
-    <p class="cs-text" id="searching-text" style="display: none;">searching</p>
-    
-    <fieldset id="results-container" style="width: 400px; height: 400px; overflow-y: auto; margin: 20px 0;">
-        <legend>Results</legend>
-    </fieldset>
-    
-    <p id="summary" class="cs-text" style="display: none; margin: 10px 0;"></p>
-    <button class="cs-btn" id="download-btn" style="display: none;">Download</button>
 </body>
 </html>
