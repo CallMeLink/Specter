@@ -74,20 +74,17 @@ searchButton.addEventListener('click', () => {
 
     const encodedUsername = encodeURIComponent(username);
     const url = `${API_BASE}/search?username=${encodedUsername}`;
-    console.log('Connecting to:', url);
 
     eventSource = new EventSource(url);
 
-    // Try to capture the search_id from the response headers via a parallel fetch
-    // EventSource doesn't expose headers, so we extract search_id from the first progress event
-    // The backend also returns it in X-Search-Id header; we use a small fetch to grab it.
-    fetch(url, { method: 'HEAD' }).then(r => {
-        const sid = r.headers.get('X-Search-Id');
-        if (sid) currentSearchId = sid;
-    }).catch(() => {});
-
     eventSource.onmessage = (event) => {
         const data = JSON.parse(event.data);
+
+        // Capture search_id sent by the backend as the first event
+        if (data.search_id) {
+            currentSearchId = data.search_id;
+            return;
+        }
 
         if (data.error) {
             setSearchingUI(false);
