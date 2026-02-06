@@ -1,2 +1,8 @@
 src/backend/__pycache__/
 src/backend/results/
+__pycache__/
+*.pyc
+.env
+venv/
+.venv/
+*.log
