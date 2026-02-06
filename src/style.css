@@ -277,7 +277,7 @@ button:disabled {
 
 .summary-text {
     font-size: 13px;
-    color: var(--cyan);
+    color: var(--green);
     margin: 10px 0;
 }
 
