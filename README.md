@@ -2,6 +2,10 @@
 
 A web-based OSINT tool that provides a clean, real-time interface for scanning username presence across hundreds of online platforms. Built on top of the [Sherlock Project](https://github.com/sherlock-project/sherlock), Specter wraps the CLI tool in a FastAPI backend and streams results to the browser via Server-Sent Events (SSE), giving users immediate visual feedback as each platform is checked.
 
+<p align="center">
+  <img width="500" alt="Screenshot 2026-02-06 051932" src="https://github.com/user-attachments/assets/899f46e4-2ac4-4f2a-bea1-3fa7c63fe51a" />
+</p>
+
 ---
 
 ## Table of Contents
