@@ -20,6 +20,9 @@ import tempfile
 import subprocess
 from pathlib import Path
 
+
+TOTAL_SITES = 461
+
 # Environment variables configuration
 LOG_LEVEL = os.environ.get("LOG_LEVEL", "INFO").upper()
 ALLOWED_ORIGIN = os.environ.get("ALLOWED_ORIGIN", "*")
@@ -348,7 +351,6 @@ async def download_file(filename: str):
         media_type="application/octet-stream",
         headers={"Content-Disposition": f'attachment; filename="{filename}"'},
     )
-
 
 # Serve the frontend static files (index.html, main.js, style.css)
 _FRONTEND_DIR = os.path.join(os.path.dirname(__file__), os.pardir)
