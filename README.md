@@ -15,7 +15,6 @@ A web-based OSINT tool that provides a clean, real-time interface for scanning u
 - [Prerequisites](#prerequisites)
 - [Installation](#installation)
 - [Usage](#usage)
-- [Configuration](#configuration)
 - [API Reference](#api-reference)
 - [Project Structure](#project-structure)
 - [Security](#security)
@@ -96,18 +95,6 @@ For development with auto-reload:
 ```bash
 uvicorn src.backend.main:app --host 127.0.0.1 --port 8000 --reload
 ```
-
-## Configuration
-
-All configuration is done through environment variables. Defaults are provided for local development.
-
-| Variable | Default | Description |
-|---|---|---|
-| `ALLOWED_ORIGIN` | `*` | CORS allowed origin. Set to your domain in production (e.g. `https://specter.example.com`). |
-| `MAX_CONCURRENT_SEARCHES` | `3` | Maximum number of Sherlock processes running simultaneously. |
-| `SEARCH_TIMEOUT` | `300` | Maximum time in seconds before a search is forcefully terminated. |
-| `LOG_LEVEL` | `INFO` | Python logging level (`DEBUG`, `INFO`, `WARNING`, `ERROR`). |
-| `SHERLOCK_PATH` | auto-detected | Absolute path to the Sherlock executable. Only needed if auto-detection fails. |
 
 Example for production:
 
